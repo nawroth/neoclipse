@@ -21,6 +21,8 @@ package org.neo4j.neoclipse.reltype;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +30,6 @@ import java.util.Set;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.RelationshipType;
@@ -60,9 +61,9 @@ IStructuredContentProvider
     }
 
     private boolean viewAll = true;
-    private final Set<RelationshipType> fakeTypes = new RelationshipTypeHashSet();
-    private Set<RelationshipType> currentRelTypes = Collections.emptySet();
-    private final Map<RelationshipType, RelationshipTypeControl> currentRelTypeCtrls = new RelationshipTypeHashMap<RelationshipTypeControl>();
+    private final Set<String> fakeTypes = new HashSet<>();
+    private Set<String> currentRelTypes = Collections.emptySet();
+    private final Map<String, RelationshipTypeControl> currentRelTypeCtrls = new HashMap<>();
     private final NeoclipseListenerList filterListeners = new NeoclipseListenerList();
     private final NeoclipseListenerList typesListeners = new NeoclipseListenerList();
     private final ReltypeCtrlChangeListener reltypeCtrlChangeListener = new ReltypeCtrlChangeListener();
@@ -75,7 +76,7 @@ IStructuredContentProvider
      * @return
      */
     public RelationshipTypeControl createRelationshipTypeControl(
-            final RelationshipType relType )
+            final String relType )
     {
         RelationshipTypeControl relTypeCtrl = new RelationshipTypeControl(
                 relType );
@@ -102,7 +103,7 @@ IStructuredContentProvider
             currentRelTypes.addAll( fakeTypes );
         }
         refreshListeners.notifyListeners( new NeoclipseEvent( this ) );
-        for ( RelationshipType relType : currentRelTypes )
+        for ( String relType : currentRelTypes )
         {
             // only add if it's not already there
             if ( !currentRelTypeCtrls.containsKey( relType ) )
@@ -119,15 +120,15 @@ IStructuredContentProvider
      * 
      * @return
      */
-    public Set<RelationshipType> getRelationshipTypesFromDb()
+    public Set<String> getRelationshipTypesFromDb()
     {
         try
         {
             return Activator.getDefault().getGraphDbServiceManager().submitTask(
-                    new GraphCallable<Set<RelationshipType>>()
+ new GraphCallable<Set<String>>()
                     {
                         @Override
-                        public Set<RelationshipType> call(
+                        public Set<String> call(
                                 final GraphDatabaseService graphDb )
                                 {
                             return GraphDbUtil.getRelationshipTypesFromDb( graphDb );
@@ -146,7 +147,7 @@ IStructuredContentProvider
      * 
      * @return
      */
-    public Set<RelationshipType> getCurrentRelationshipTypes()
+    public Set<String> getCurrentRelationshipTypes()
     {
         return currentRelTypes;
     }
@@ -157,12 +158,11 @@ IStructuredContentProvider
      * 
      * @param name the name of the relationship type
      */
-    public RelationshipType addFakeType( final String name )
+    public String addFakeType( final String name )
     {
-        RelationshipType relType = DynamicRelationshipType.withName( name );
-        fakeTypes.add( relType );
-        notifyTypesListeners( new NeoclipseEvent( relType ) );
-        return relType;
+        fakeTypes.add( name );
+        notifyTypesListeners( new NeoclipseEvent( name ) );
+        return name;
     }
 
     /**
@@ -227,7 +227,7 @@ IStructuredContentProvider
     public void setAllFilters( final boolean in, final boolean out )
     {
         filterListeners.setInhibit( true );
-        for ( RelationshipType relType : currentRelTypeCtrls.keySet() )
+        for ( String relType : currentRelTypeCtrls.keySet() )
         {
             RelationshipTypeControl relTypeCtrl = currentRelTypeCtrls.get( relType );
             if ( relTypeCtrl != null )

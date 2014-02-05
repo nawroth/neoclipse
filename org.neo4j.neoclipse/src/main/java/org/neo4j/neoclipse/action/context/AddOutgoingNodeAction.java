@@ -20,7 +20,6 @@ package org.neo4j.neoclipse.action.context;
 
 import java.util.List;
 
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.neoclipse.action.AbstractGraphAction;
 import org.neo4j.neoclipse.action.Actions;
 import org.neo4j.neoclipse.graphdb.GraphDbUtil;
@@ -41,7 +40,7 @@ public class AddOutgoingNodeAction extends AbstractGraphAction
     @Override
     public void run()
     {
-        List<RelationshipType> relTypes = graphView.getRelTypeView()
+        List<String> relTypes = graphView.getRelTypeView()
             .getCurrentSelectedRelTypes();
         GraphDbUtil.addOutgoingNodeAction( relTypes, graphView );
     }

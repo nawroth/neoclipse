@@ -18,6 +18,7 @@
  */
 package org.neo4j.neoclipse.view;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -38,7 +39,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.zest.core.viewers.GraphViewer;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.neoclipse.Activator;
 import org.neo4j.neoclipse.action.Actions;
 import org.neo4j.neoclipse.action.PrintGraphAction;
@@ -49,6 +49,7 @@ import org.neo4j.neoclipse.action.browse.ShowReferenceNodeAction;
 import org.neo4j.neoclipse.action.connect.StartAction;
 import org.neo4j.neoclipse.action.connect.StopAction;
 import org.neo4j.neoclipse.action.connect.SyncAction;
+import org.neo4j.neoclipse.action.context.AddNodeAction;
 import org.neo4j.neoclipse.action.context.CommitAction;
 import org.neo4j.neoclipse.action.context.DeleteAction;
 import org.neo4j.neoclipse.action.context.RollbackAction;
@@ -80,7 +81,6 @@ import org.neo4j.neoclipse.decorate.SimpleGraphDecorator.ViewSettings;
 import org.neo4j.neoclipse.event.NeoclipseEvent;
 import org.neo4j.neoclipse.event.NeoclipseEventListener;
 import org.neo4j.neoclipse.graphdb.GraphDbUtil;
-import org.neo4j.neoclipse.reltype.RelationshipTypeHashMap;
 import org.neo4j.neoclipse.reltype.RelationshipTypeSorter;
 import org.neo4j.neoclipse.reltype.RelationshipTypesProvider;
 import org.neo4j.neoclipse.reltype.RelationshipTypesProviderWrapper;
@@ -108,9 +108,9 @@ public class NeoGraphMenu
          * 
          * @param relType relationship type to use
          */
-        public ActionSet( final RelationshipType relType )
+        public ActionSet( final String relType )
         {
-            final String name = relType.name();
+            final String name = relType;
             ImageDescriptor imgDesc;
             if ( showRelationshipColors )
             {
@@ -246,6 +246,7 @@ public class NeoGraphMenu
     private final ShowReferenceNodeAction refNodeAction;
     private final RefreshAction refreshAction;
     private final DeleteAction deleteAction;
+    private final AddNodeAction addNodeAction;
     private final CommitAction commitAction;
     private final RollbackAction rollbackAction;
     // menu managers
@@ -268,7 +269,7 @@ public class NeoGraphMenu
     /**
      * Colored images for the different relationship types.
      */
-    private final Map<RelationshipType, ImageDescriptor> relTypeImages = new RelationshipTypeHashMap<ImageDescriptor>();
+    private final Map<String, ImageDescriptor> relTypeImages = new HashMap<>();
     /**
      * Default image when color is off.
      */
@@ -326,6 +327,7 @@ public class NeoGraphMenu
         this.graphView = graphView;
         graphViewer = graphView.getViewer();
         deleteAction = new DeleteAction( graphView );
+        addNodeAction = new AddNodeAction( graphView );
         backAction = new GoBackAction( graphView );
         forwardAction = new GoForwardAction( graphView );
         decAction = new DecreaseTraversalDepthAction( graphView );
@@ -544,6 +546,7 @@ public class NeoGraphMenu
      */
     private void nodeSpaceActions( final IToolBarManager tm )
     {
+        tm.add( addNodeAction );
         tm.add( deleteAction );
         tm.add( SEPARATOR );
     }
@@ -764,10 +767,10 @@ public class NeoGraphMenu
         addOutNodeMenuMgr.removeAll();
         addInNodeMenuMgr.removeAll();
         addLoopMenuMgr.removeAll();
-        Set<RelationshipType> relTypes = RelationshipTypesProviderWrapper.getInstance().getCurrentRelationshipTypes();
-        for ( RelationshipType relType : relTypes )
+        Set<String> relTypes = RelationshipTypesProviderWrapper.getInstance().getCurrentRelationshipTypes();
+        for ( String relType : relTypes )
         {
-            actionMap.put( relType.name(), new ActionSet( relType ) );
+            actionMap.put( relType, new ActionSet( relType ) );
         }
         addNewActionSet.addLast();
         for ( ActionSet actionSet : actionMap.values() )
@@ -781,10 +784,10 @@ public class NeoGraphMenu
      * 
      * @param relType
      */
-    private void addRelType( final RelationshipType relType )
+    private void addRelType( final String relType )
     {
         final ActionSet actionSet = new ActionSet( relType );
-        final String name = relType.name();
+        final String name = relType;
         actionMap.put( name, actionSet );
         actionSet.addAt( actionMap.headMap( name ).size() + 1 );
     }
@@ -797,9 +800,9 @@ public class NeoGraphMenu
         @Override
         public void stateChanged( final NeoclipseEvent event )
         {
-            if ( event.getSource() instanceof RelationshipType )
+            if ( event.getSource() instanceof String )
             {
-                addRelType( (RelationshipType) event.getSource() );
+                addRelType( (String) event.getSource() );
             }
         }
     }

@@ -489,7 +489,7 @@ public class SimpleGraphDecorator
                         for ( Relationship rel : node.getRelationships( direction ) )
                         {
                             RelationshipType type = rel.getType();
-                            if ( !colorMapper.colorExists( type ) )
+                            if ( !colorMapper.colorExists( type.name() ) )
                             {
                                 if ( randomRel == null )
                                 {
@@ -539,32 +539,32 @@ public class SimpleGraphDecorator
         case INCOMING:
             if ( marked )
             {
-                return colorMapper.getColor( type,
+                return colorMapper.getColor( type.name(),
                         ColorCategory.NODE_INCOMING_MARKED );
             }
             else
             {
-                return colorMapper.getColor( type, ColorCategory.NODE_INCOMING );
+                return colorMapper.getColor( type.name(), ColorCategory.NODE_INCOMING );
             }
         case OUTGOING:
             if ( marked )
             {
-                return colorMapper.getColor( type,
+                return colorMapper.getColor( type.name(),
                         ColorCategory.NODE_OUTGOING_MARKED );
             }
             else
             {
-                return colorMapper.getColor( type, ColorCategory.NODE_OUTGOING );
+                return colorMapper.getColor( type.name(), ColorCategory.NODE_OUTGOING );
             }
         default:
             if ( marked )
             {
-                return colorMapper.getColor( type,
+                return colorMapper.getColor( type.name(),
                         ColorCategory.RELATIONSHIP_MARKED );
             }
             else
             {
-                return colorMapper.getColor( type, ColorCategory.RELATIONSHIP );
+                return colorMapper.getColor( type.name(), ColorCategory.RELATIONSHIP );
             }
         }
     }
@@ -576,10 +576,11 @@ public class SimpleGraphDecorator
 
     public Color getRelationshipColor( final Relationship rel )
     {
-        return colorMapper.getColor( rel.getType(), ColorCategory.RELATIONSHIP );
+        String type = GraphDbUtil.getRelationshipType( rel );
+        return colorMapper.getColor( type, ColorCategory.RELATIONSHIP );
     }
 
-    public Color getRelationshipColor( final RelationshipType relType )
+    public Color getRelationshipColor( final String relType )
     {
         return colorMapper.getColor( relType, ColorCategory.RELATIONSHIP );
     }
@@ -644,7 +645,7 @@ public class SimpleGraphDecorator
                 {
                     str.append( ", " );
                 }
-                str.append( node.getId() );
+                str.append( GraphDbUtil.getId( node ) );
             }
             return str.toString();
         }
@@ -693,11 +694,11 @@ public class SimpleGraphDecorator
         {
             if ( container instanceof Node )
             {
-                values.add( String.valueOf( ( (Node) container ).getId() ) );
+                values.add( String.valueOf( GraphDbUtil.getId( (Node) container ) ) );
             }
             else if ( container instanceof Relationship )
             {
-                values.add( String.valueOf( ( (Relationship) container ).getId() ) );
+                values.add( String.valueOf( GraphDbUtil.getId( (Relationship) container ) ) );
             }
         }
         if ( values.size() > 0 )
@@ -739,13 +740,13 @@ public class SimpleGraphDecorator
             if ( container instanceof Node )
             {
                 str.append( "id: " )
-                        .append( ( (Node) container ).getId() )
+                        .append( GraphDbUtil.getId( (Node) container ) )
                         .append( '\n' );
             }
             else if ( container instanceof Relationship )
             {
                 str.append( "id: " )
-                        .append( ( (Relationship) container ).getId() )
+                        .append( GraphDbUtil.getId( (Relationship) container ) )
                         .append( '\n' );
             }
         }
@@ -769,8 +770,7 @@ public class SimpleGraphDecorator
         StringBuilder str = new StringBuilder( 48 );
         if ( viewSettings.isShowRelationshipTypes() )
         {
-            str.append( rel.getType()
-                    .name() );
+            str.append( GraphDbUtil.getRelationshipType( rel ) );
         }
         if ( viewSettings.isShowRelationshipNames() )
         {
@@ -814,7 +814,7 @@ public class SimpleGraphDecorator
             {
                 str.append( ", " );
             }
-            str.append( rel.getId() );
+            str.append( GraphDbUtil.getId( rel ) );
         }
         return str.toString();
     }
@@ -875,7 +875,7 @@ public class SimpleGraphDecorator
                     {
                         for ( Relationship rel : node.getRelationships( direction ) )
                         {
-                            img = userIcons.getImage( rel.getType(), direction );
+                            img = userIcons.getImage( rel.getType().name(), direction );
                             if ( img != null )
                             {
                                 return img;
@@ -916,15 +916,15 @@ public class SimpleGraphDecorator
         }
     }
 
-    public Set<RelationshipType> getRelationshipTypes()
+    public Set<String> getRelationshipTypes()
     {
         return colorMapper.getKeys();
     }
 
     public Color getMarkedRelationshipColor( final Relationship rel )
     {
-        return colorMapper.getColor( rel.getType(),
-                ColorCategory.RELATIONSHIP_MARKED );
+        String type = GraphDbUtil.getRelationshipType( rel );
+        return colorMapper.getColor( type, ColorCategory.RELATIONSHIP_MARKED );
     }
 
     public int getMarkedRelationshipStyle( final Object rel )

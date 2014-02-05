@@ -19,7 +19,6 @@
 package org.neo4j.neoclipse.reltype;
 
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.neoclipse.event.NeoclipseEvent;
 import org.neo4j.neoclipse.event.NeoclipseEventListener;
 import org.neo4j.neoclipse.event.NeoclipseListenerList;
@@ -33,7 +32,7 @@ import org.neo4j.neoclipse.event.NeoclipseListenerList;
 public class RelationshipTypeControl implements DirectedRelationship
 {
     private final NeoclipseListenerList listeners = new NeoclipseListenerList();
-    private final RelationshipType relType;
+    private final String relType;
     private boolean in = true;
     private boolean out = true;
 
@@ -42,7 +41,7 @@ public class RelationshipTypeControl implements DirectedRelationship
      * 
      * @param relType
      */
-    RelationshipTypeControl( final RelationshipType relType )
+    RelationshipTypeControl( final String relType )
     {
         this.relType = relType;
     }
@@ -99,7 +98,7 @@ public class RelationshipTypeControl implements DirectedRelationship
      * @see org.neo4j.neoclipse.reltype.DirectedRelationship#getRelType()
      */
     @Override
-    public RelationshipType getRelType()
+    public String getRelType()
     {
         return relType;
     }
@@ -135,7 +134,7 @@ public class RelationshipTypeControl implements DirectedRelationship
         }
         throw new RuntimeException(
                 "There is no direction set for RelationshipType: "
-                        + relType.name() );
+ + relType );
     }
 
     /**
@@ -160,7 +159,7 @@ public class RelationshipTypeControl implements DirectedRelationship
     @Override
     public String toString()
     {
-        return relType.name() + in + out;
+        return relType + in + out;
     }
 
     @Override
@@ -172,8 +171,8 @@ public class RelationshipTypeControl implements DirectedRelationship
         }
         if ( obj instanceof RelationshipTypeControl )
         {
-            return this.getRelType().name().equals(
-                    ( (DirectedRelationship) obj ).getRelType().name() );
+            return this.getRelType()
+                    .equals( ( (DirectedRelationship) obj ).getRelType() );
         }
         return false;
     }
@@ -181,6 +180,7 @@ public class RelationshipTypeControl implements DirectedRelationship
     @Override
     public int hashCode()
     {
-        return this.getRelType().name().hashCode();
+        return this.getRelType()
+                .hashCode();
     }
 }

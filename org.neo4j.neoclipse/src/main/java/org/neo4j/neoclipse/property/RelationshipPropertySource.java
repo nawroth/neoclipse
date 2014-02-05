@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.neoclipse.graphdb.GraphDbUtil;
 
 /**
  * Resolves the properties for a Neo relationship.
@@ -57,11 +58,11 @@ public class RelationshipPropertySource extends PropertySource
     {
         if ( id == ID_KEY )
         {
-            return ((Relationship) container).getId();
+            return ( GraphDbUtil.getId( (Relationship) container ) );
         }
         else if ( id == RELATIONSHIP_TYPE_KEY )
         {
-            return ((Relationship) container).getType().name();
+            return GraphDbUtil.getRelationshipType( (Relationship) container );
         }
         else
         {

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
@@ -58,8 +59,9 @@ public class DefaultTraverser implements TraversalStrategy
             for ( DirectedRelationship directedRel : directedRels )
             {
                 Direction d = directedRel.hasDirection() ?  directedRel.getDirection() : Direction.BOTH;
-                description.relationships( directedRel.getRelType(), d );
-                relTypes.add( directedRel.getRelType() );
+                DynamicRelationshipType type = DynamicRelationshipType.withName( directedRel.getRelType() );
+                description.relationships( type, d );
+                relTypes.add( type );
             }
             for ( Node currentNode : description.traverse( node ).nodes() )
             {

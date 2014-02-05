@@ -31,9 +31,9 @@ import java.util.concurrent.Callable;
 
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -73,7 +73,7 @@ public class GraphDbUtil
      * @param graphView current database graph view
      */
     public static void createRelationship( final Node source, final Node dest,
-            final RelationshipType relType, final NeoGraphViewPart graphView )
+            final String relType, final NeoGraphViewPart graphView )
     {
         List<Node> sourceNodes = null;
         if ( source != null )
@@ -101,7 +101,8 @@ public class GraphDbUtil
      * @return
      */
     private static void createRelationship( final List<Node> sourceNodes,
-            final List<Node> destNodes, final RelationshipType relType,
+ final List<Node> destNodes,
+            final String relType,
             final NeoGraphViewPart graphView )
     {
         try
@@ -126,10 +127,10 @@ public class GraphDbUtil
     }
 
     private static void createTheRelationship( List<Node> sourceNodes,
-            List<Node> destNodes, final RelationshipType relType,
+ List<Node> destNodes, final String type,
             final NeoGraphViewPart graphView, final GraphDatabaseService graphDb )
     {
-        if ( relType == null )
+        if ( type == null )
         {
             throw new IllegalArgumentException(
                     "RelationshipType can not be null" );
@@ -148,6 +149,7 @@ public class GraphDbUtil
         Node createNode = null;
         try
         {
+            RelationshipType relType = DynamicRelationshipType.withName( type );
             if ( destNodes == null )
             {
                 destNodes = new ArrayList<Node>();
@@ -305,7 +307,7 @@ public class GraphDbUtil
      * @param graphView the current graph view
      */
     public static void addRelationshipAction(
-            final List<RelationshipType> relTypes,
+            final List<String> relTypes,
             final NeoGraphViewPart graphView )
     {
         if ( !isOneRelTypeSelected( relTypes ) )
@@ -321,7 +323,7 @@ public class GraphDbUtil
      * @param relTypes relationships types to use (should only be one item)
      * @param graphView the current graph view
      */
-    public static void addRelationshipAction( final RelationshipType relType,
+    public static void addRelationshipAction( final String relType,
             final NeoGraphViewPart graphView )
     {
         List<Node> currentSelectedNodes = graphView.getCurrentSelectedNodes();
@@ -343,7 +345,7 @@ public class GraphDbUtil
      * @param graphView
      */
     public static void addOutgoingNodeAction(
-            final List<RelationshipType> relTypes,
+            final List<String> relTypes,
             final NeoGraphViewPart graphView )
     {
         if ( !isOneRelTypeSelected( relTypes ) )
@@ -359,7 +361,7 @@ public class GraphDbUtil
      * @param relType relationship type to use
      * @param graphView the current graph view
      */
-    public static void addOutgoingNodeAction( final RelationshipType relType,
+    public static void addOutgoingNodeAction( final String relType,
             final NeoGraphViewPart graphView )
     {
         List<Node> currentSelectedNodes = graphView.getCurrentSelectedNodes();
@@ -377,7 +379,7 @@ public class GraphDbUtil
      * @param graphView
      */
     public static void addIncomingNodeAction(
-            final List<RelationshipType> relTypes,
+            final List<String> relTypes,
             final NeoGraphViewPart graphView )
     {
         if ( !isOneRelTypeSelected( relTypes ) )
@@ -393,7 +395,7 @@ public class GraphDbUtil
      * @param relTypes relationships types to use (should only be one item)
      * @param graphView
      */
-    public static void addIncomingNodeAction( final RelationshipType relType,
+    public static void addIncomingNodeAction( final String relType,
             final NeoGraphViewPart graphView )
     {
         List<Node> currentSelectedNodes = graphView.getCurrentSelectedNodes();
@@ -410,7 +412,7 @@ public class GraphDbUtil
      * @param relTypes relationships types to use (should only be one item)
      * @param graphView
      */
-    public static void addLoopNodeAction( final RelationshipType relType,
+    public static void addLoopNodeAction( final String relType,
             final NeoGraphViewPart graphView )
     {
         List<Node> currentSelectedNodes = graphView.getCurrentSelectedNodes();
@@ -428,7 +430,7 @@ public class GraphDbUtil
      * @return
      */
     private static boolean isOneRelTypeSelected(
-            final List<RelationshipType> relTypes )
+            final List<String> relTypes )
     {
         if ( relTypes.size() != 1 )
         {
@@ -630,6 +632,73 @@ public class GraphDbUtil
         stateChanged( container, newKey, true, propertySheet );
     }
 
+    public static String getRelationshipType( final Relationship rel)
+    {
+        try
+        {
+            return Activator.getDefault()
+                    .getGraphDbServiceManager()
+                    .submitTask( new Callable<String>()
+                    {
+                        @Override
+                        public String call() throws Exception
+                        {
+                            return rel.getType().name();
+                        }
+                    }, "get relationship type" )
+                    .get();
+        }
+        catch ( Exception e )
+        {
+            ErrorMessage.showDialog( "Get relationship type", e );
+        }
+        return null;
+    }
+
+    public static Long getId( final Node node )
+    {
+        try
+        {
+            return Activator.getDefault()
+                    .getGraphDbServiceManager()
+                    .submitTask( new Callable<Long>()
+                    {
+                        @Override
+                        public Long call() throws Exception
+                        {
+                            return node.getId();
+                        }
+                    }, "get node id" ).get();
+        }
+        catch ( Exception e )
+        {
+            ErrorMessage.showDialog( "Get node id", e );
+        }
+        return null;
+    }
+    
+    public static Long getId( final Relationship rel )
+    {
+        try
+        {
+            return Activator.getDefault()
+                    .getGraphDbServiceManager()
+                    .submitTask( new Callable<Long>()
+                    {
+                        @Override
+                        public Long call() throws Exception
+                        {
+                            return rel.getId();
+                        }
+                    }, "get node id" ).get();
+        }
+        catch ( Exception e )
+        {
+            ErrorMessage.showDialog( "Get relationship id", e );
+        }
+        return null;
+    }
+
     public static Object getProperty( final PropertyContainer container,
             final String key )
     {
@@ -722,19 +791,41 @@ public class GraphDbUtil
      * @param graphDb the graphdb instance
      * @return the relationship types
      */
-    public static Set<RelationshipType> getRelationshipTypesFromDb(
+    public static Set<String> getRelationshipTypesFromDb(
             final GraphDatabaseService graphDb )
     {
         if ( graphDb == null )
         {
             return Collections.emptySet();
         }
-        Set<RelationshipType> relationshipTypes;
-        relationshipTypes = new HashSet<RelationshipType>();
+        Set<String> relationshipTypes = new HashSet<>();
         for ( RelationshipType relType : graphDb.getRelationshipTypes() )
         {
-            relationshipTypes.add( relType );
+            relationshipTypes.add( relType.name() );
         }
         return relationshipTypes;
+    }
+
+    public static void addNodeAction( final NeoGraphViewPart graphView )
+    {
+        try
+        {
+            Activator.getDefault()
+                    .getGraphDbServiceManager()
+                    .submitTask( new GraphRunnable()
+                    {
+                        @Override
+                        public void run( final GraphDatabaseService graphDb )
+                        {
+                            Node node = graphDb.createNode();
+                            graphView.showNode( node.getId() );
+                        }
+                    }, "create node" )
+                    .get();
+        }
+        catch ( Exception e )
+        {
+            ErrorMessage.showDialog( "Create relationship(s)", e );
+        }
     }
 }

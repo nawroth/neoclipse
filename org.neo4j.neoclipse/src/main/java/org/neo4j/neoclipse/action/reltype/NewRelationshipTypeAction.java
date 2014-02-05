@@ -19,7 +19,6 @@
 package org.neo4j.neoclipse.action.reltype;
 
 import org.eclipse.jface.dialogs.InputDialog;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.neoclipse.action.AbstractBaseAction;
 import org.neo4j.neoclipse.action.Actions;
 import org.neo4j.neoclipse.graphdb.GraphDbUtil;
@@ -82,7 +81,7 @@ public class NewRelationshipTypeAction extends AbstractBaseAction
             NEW_RELTYPE_DIALOG_TEXT, null, null );
         if ( input.open() == OK && input.getReturnCode() == OK )
         {
-            RelationshipType relType = provider.addFakeType( input.getValue() );
+            String relType = provider.addFakeType( input.getValue() );
             switch ( extraAction )
             {
                 case NONE:

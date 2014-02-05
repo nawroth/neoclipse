@@ -16,31 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.neo4j.neoclipse.reltype;
+package org.neo4j.neoclipse.action.context;
 
-import org.neo4j.graphdb.Direction;
+import org.neo4j.neoclipse.action.AbstractGraphAction;
+import org.neo4j.neoclipse.action.Actions;
+import org.neo4j.neoclipse.graphdb.GraphDbUtil;
+import org.neo4j.neoclipse.view.NeoGraphViewPart;
 
-public interface DirectedRelationship
+/**
+ * Action to create a node.
+ * 
+ * @author Anders Nawroth
+ */
+public class AddNodeAction extends AbstractGraphAction
 {
+    public AddNodeAction( final NeoGraphViewPart neoGraphViewPart )
+    {
+        super( Actions.ADD_NODE, neoGraphViewPart );
+        setEnabled( true );
+    }
 
-    /**
-     * Get the relationship type in this wrapper.
-     * 
-     * @return
-     */
-    String getRelType();
-
-    /**
-     * Get direction filter for this relationship type.
-     * 
-     * @return
-     */
-    Direction getDirection();
-
-    /**
-     * Tell if a relationship type is active.
-     * 
-     * @return
-     */
-    boolean hasDirection();
+    @Override
+    public void run()
+    {
+        GraphDbUtil.addNodeAction( graphView );
+    }
 }

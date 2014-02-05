@@ -58,6 +58,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.zest.core.viewers.GraphViewer;
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -108,7 +109,7 @@ public class RelationshipTypeView extends ViewPart implements
     private Action filterAll;
     private Action filterOutgoing;
     private Action filterIncoming;
-    private final List<RelationshipType> currentSelectedRelTypes = new ArrayList<RelationshipType>();
+    private final List<String> currentSelectedRelTypes = new ArrayList<>();
     private FileDialog iconFileDialog;
     private Action deleteIncomingIcon;
     private Action deleteOutgoingIcon;
@@ -470,7 +471,7 @@ public class RelationshipTypeView extends ViewPart implements
             e1.printStackTrace();
             return;
         }
-        for ( RelationshipType relType : getCurrentSelectedRelTypes() )
+        for ( String relType : getCurrentSelectedRelTypes() )
         {
             String destFilename = UserIcons.createFilename( relType, direction )
                                   + ext;
@@ -520,7 +521,7 @@ public class RelationshipTypeView extends ViewPart implements
         {
             return;
         }
-        for ( RelationshipType relType : getCurrentSelectedRelTypes() )
+        for ( String relType : getCurrentSelectedRelTypes() )
         {
             final String destFilename = UserIcons.createFilename( relType,
                     direction ) + ".";
@@ -563,8 +564,8 @@ public class RelationshipTypeView extends ViewPart implements
             @Override
             public void run()
             {
-                List<RelationshipType> relTypes = getCurrentSelectedRelTypes();
-                for ( RelationshipType relType : relTypes )
+                List<String> relTypes = getCurrentSelectedRelTypes();
+                for ( String relType : relTypes )
                 {
                     highlightRelationshipType( relType );
                 }
@@ -578,8 +579,8 @@ public class RelationshipTypeView extends ViewPart implements
             @Override
             public void run()
             {
-                List<RelationshipType> relTypes = getCurrentSelectedRelTypes();
-                for ( RelationshipType relType : relTypes )
+                List<String> relTypes = getCurrentSelectedRelTypes();
+                for ( String relType : relTypes )
                 {
                     highlightNodes( relType, Direction.INCOMING );
                 }
@@ -593,8 +594,8 @@ public class RelationshipTypeView extends ViewPart implements
             @Override
             public void run()
             {
-                List<RelationshipType> relTypes = getCurrentSelectedRelTypes();
-                for ( RelationshipType relType : relTypes )
+                List<String> relTypes = getCurrentSelectedRelTypes();
+                for ( String relType : relTypes )
                 {
                     highlightNodes( relType, Direction.OUTGOING );
                 }
@@ -689,7 +690,7 @@ public class RelationshipTypeView extends ViewPart implements
      * 
      * @return
      */
-    public RelationshipType getCurrentSelectedRelType()
+    public String getCurrentSelectedRelType()
     {
         if ( currentSelectedRelTypes.size() < 1 )
         {
@@ -703,7 +704,7 @@ public class RelationshipTypeView extends ViewPart implements
      * 
      * @return
      */
-    public List<RelationshipType> getCurrentSelectedRelTypes()
+    public List<String> getCurrentSelectedRelTypes()
     {
         return currentSelectedRelTypes;
     }
@@ -713,7 +714,7 @@ public class RelationshipTypeView extends ViewPart implements
      * 
      * @param relType
      */
-    private void highlightRelationshipType( final RelationshipType relType )
+    private void highlightRelationshipType( final String relType )
     {
         if ( getGraphView() == null )
         {
@@ -726,7 +727,9 @@ public class RelationshipTypeView extends ViewPart implements
             if ( o instanceof Relationship )
             {
                 Relationship rel = (Relationship) o;
-                if ( rel.isType( relType ) )
+                if ( rel.getType()
+                        .name()
+                        .equals( relType ) )
                 {
                     rels.add( rel );
                 }
@@ -743,7 +746,7 @@ public class RelationshipTypeView extends ViewPart implements
      * @param relType relationship type to use
      * @param direction direction in which nodes should be highlighted
      */
-    private void highlightNodes( final RelationshipType relType,
+    private void highlightNodes( final String relType,
             final Direction direction )
     {
         if ( getGraphView() == null )
@@ -752,12 +755,13 @@ public class RelationshipTypeView extends ViewPart implements
         }
         GraphViewer gViewer = getGraphView().getViewer();
         Set<Node> nodes = new HashSet<Node>();
+        RelationshipType type = DynamicRelationshipType.withName( relType );
         for ( Object o : gViewer.getNodeElements() )
         {
             if ( o instanceof Node )
             {
                 Node node = (Node) o;
-                if ( node.hasRelationship( relType, direction ) )
+                if ( node.hasRelationship( type, direction ) )
                 {
                     nodes.add( node );
                 }

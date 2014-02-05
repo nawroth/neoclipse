@@ -53,6 +53,7 @@ public enum Actions
     DELETE_INCOMING_ICON( "Remove end node icon for type", Icons.DELETE_ICON_INCOMING ),
     DELETE_OUTGOING_ICON( "Remove start node icon for type", Icons.DELETE_ICON_OUTGOING ),
     // add node
+    ADD_NODE( "Create new node", "Create new solitary node.", Icons.ADD_INCOMING_ENABLED, Icons.ADD_INCOMING_DISABLED ),
     ADD_INCOMING_NODE( "Create new node as start node", "Create a new node with a relationship; "
                                                         + "the new node is the start node of the relationship(s).",
             Icons.ADD_INCOMING_ENABLED, Icons.ADD_INCOMING_DISABLED ),

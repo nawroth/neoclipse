@@ -43,7 +43,6 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.neoclipse.Activator;
 import org.neo4j.neoclipse.Icons;
 import org.neo4j.neoclipse.decorate.SimpleGraphDecorator;
@@ -250,7 +249,7 @@ ITableLabelProvider, ITableColorProvider, InputChangeListener
         else if ( element instanceof RelationshipTypeControl )
         {
             DirectedRelationship typeControl = (DirectedRelationship) element;
-            return typeControl.getRelType().name();
+            return typeControl.getRelType();
         }
         else if ( element == null )
         {
@@ -350,9 +349,9 @@ ITableLabelProvider, ITableColorProvider, InputChangeListener
             }
             return graphDecorator.getRelationshipColor( rel );
         }
-        else if ( o instanceof RelationshipType )
+        else if ( o instanceof String )
         {
-            RelationshipType relType = (RelationshipType) o;
+            String relType = (String) o;
             return graphDecorator.getRelationshipColor( relType );
         }
         return null;
@@ -449,7 +448,7 @@ ITableLabelProvider, ITableColorProvider, InputChangeListener
         if ( index == 0 && element instanceof RelationshipTypeControl )
         {
             DirectedRelationship control = (DirectedRelationship) element;
-            return control.getRelType().name();
+            return control.getRelType();
         }
         return null;
     }
@@ -478,7 +477,7 @@ ITableLabelProvider, ITableColorProvider, InputChangeListener
      * 
      * @return
      */
-    public Set<RelationshipType> getRelationshipTypes()
+    public Set<String> getRelationshipTypes()
     {
         return graphDecorator.getRelationshipTypes();
     }

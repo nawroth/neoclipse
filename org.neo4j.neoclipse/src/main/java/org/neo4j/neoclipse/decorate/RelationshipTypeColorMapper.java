@@ -18,14 +18,13 @@
  */
 package org.neo4j.neoclipse.decorate;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.neoclipse.reltype.RelationshipTypeHashMap;
 
 /**
  * Map relationship types to colors.
@@ -58,7 +57,7 @@ public class RelationshipTypeColorMapper
     /**
      * Map Objects to Colors for the graph.
      */
-    private final Map<RelationshipType, Colors> colorMap = new RelationshipTypeHashMap<Colors>();
+    private final Map<String, Colors> colorMap = new HashMap<>();
     /**
      * Create colors.
      */
@@ -70,7 +69,7 @@ public class RelationshipTypeColorMapper
         this.colorCategories = values;
     }
 
-    public Color getColor( final RelationshipType type,
+    public Color getColor( final String type,
             final ColorSetting colorSetting )
     {
         Colors colors = colorMap.get( type );
@@ -82,12 +81,12 @@ public class RelationshipTypeColorMapper
         return colors.getColor( colorSetting );
     }
 
-    public boolean colorExists( final RelationshipType type )
+    public boolean colorExists( final String type )
     {
         return colorMap.containsKey( type );
     }
 
-    public Set<RelationshipType> getKeys()
+    public Set<String> getKeys()
     {
         return colorMap.keySet();
     }

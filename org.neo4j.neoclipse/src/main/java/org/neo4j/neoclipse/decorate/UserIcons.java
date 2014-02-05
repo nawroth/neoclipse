@@ -27,7 +27,6 @@ import java.util.Set;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
 
 /**
  * This class manages user icons.
@@ -128,7 +127,7 @@ public class UserIcons
     /**
      * Lookup user icon from relationship type and direction.
      */
-    public Image getImage( final RelationshipType relType,
+    public Image getImage( final String relType,
         final Direction direction )
     {
         return getImage( createFilename( relType, direction ) );
@@ -138,7 +137,7 @@ public class UserIcons
      * Get filename (without extension) from relationship type and direction.
      * The direction has to be incoming or outgoing.
      */
-    public static String createFilename( final RelationshipType relType,
+    public static String createFilename( final String relType,
         final Direction direction )
     {
         if ( direction == Direction.BOTH )
@@ -146,6 +145,6 @@ public class UserIcons
             throw new IllegalArgumentException(
                 "Icons can not be set for BOTH direction." );
         }
-        return relType.name() + "." + direction.name();
+        return relType + "." + direction.name();
     }
 }

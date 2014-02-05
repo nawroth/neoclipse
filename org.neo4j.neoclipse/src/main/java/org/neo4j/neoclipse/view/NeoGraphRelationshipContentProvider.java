@@ -29,7 +29,6 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ReturnableEvaluator;
 import org.neo4j.graphdb.StopEvaluator;
 import org.neo4j.graphdb.TraversalPosition;
@@ -93,7 +92,8 @@ public class NeoGraphRelationshipContentProvider implements
             // and we don't want them to initialize first
             // (traversal gives better coloring!)
             relDirList = new ArrayList<Object>();
-            for ( RelationshipType relType : RelationshipTypesProviderWrapper.getInstance().getRelationshipTypesFromDb() )
+            for ( String relType : RelationshipTypesProviderWrapper.getInstance()
+                    .getRelationshipTypesFromDb() )
             {
                 relDirList.add( relType );
                 relDirList.add( Direction.BOTH );
